@@ -1,6 +1,7 @@
 from settings import *
 import random
 
+
 class Block(pg.sprite.Sprite):
     def __init__(self, tetromino, pos):
         self.tetromino = tetromino
@@ -10,8 +11,6 @@ class Block(pg.sprite.Sprite):
 
         super().__init__(tetromino.tetris.sprite_group)
         self.image = tetromino.image
-        # self.image = pg.Surface([TILE_SIZE, TILE_SIZE])
-        # pg.draw.rect(self.image, 'orange', (1, 1, TILE_SIZE-2, TILE_SIZE-2), border_radius=8)
         self.rect = self.image.get_rect()
 
         self.sfx_image = self.image.copy()
@@ -26,7 +25,7 @@ class Block(pg.sprite.Sprite):
             if self.cycle_counter > self.sfx_cycles:
                 self.cycle_counter = 0
                 return True
-    
+
     def sfx_run(self):
         self.image = self.sfx_image
         self.pos.y -= self.sfx_speed
@@ -34,7 +33,7 @@ class Block(pg.sprite.Sprite):
 
     def is_alive(self):
         if not self.alive:
-            if not self.sfx_end_time:
+            if not self.sfx_end_time():
                 self.sfx_run()
             else:
                 self.kill()
@@ -54,9 +53,11 @@ class Block(pg.sprite.Sprite):
 
     def is_collide(self, pos):
         x, y = int(pos.x), int(pos.y)
-        if 0 <= x < FIELD_W and y < FIELD_H and (y < 0 or not self.tetromino.tetris.field_array[y][x]):
+        if 0 <= x < FIELD_W and y < FIELD_H and (
+                y < 0 or not self.tetromino.tetris.field_array[y][x]):
             return False
         return True
+
 
 class Tetromino:
     def __init__(self, tetris, current=True):
@@ -80,9 +81,9 @@ class Tetromino:
 
     def move(self, direction):
         move_direction = MOVE_DIRECTIONS[direction]
-        new_block_position = [block.pos + move_direction for block in self.blocks]
-        is_collide = self.is_collide(new_block_position)
-        
+        new_block_positions = [block.pos + move_direction for block in self.blocks]
+        is_collide = self.is_collide(new_block_positions)
+
         if not is_collide:
             for block in self.blocks:
                 block.pos += move_direction
